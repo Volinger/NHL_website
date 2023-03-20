@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'NHL-website'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5D6779C2A8114FB98FEEF8C4701739F6 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B8C07A0A6E874F6AACE1096646CE0B19 }}
