@@ -21,7 +21,8 @@ class StatsViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def skater_stats(self, request):
-        records = models.SkaterSeasonStats.objects.all()[:10]
+        seasons = int(request.query_params['seasons'])
+        records = models.SkaterSeasonStats.objects.filter(season_id=seasons).all()[:10]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
@@ -48,4 +49,15 @@ class StatsViewSet(viewsets.GenericViewSet):
         """
         records = models.Players.objects.all()
         data = serializers.PlayersSerializer(records, many=True)
+        return Response(data=data.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def seasons(self, request):
+        """
+        Fetches list of all seasons.
+        :param request:
+        :return:
+        """
+        records = models.Seasons.objects.all()
+        data = serializers.SeasonsSerializer(records, many=True)
         return Response(data=data.data, status=status.HTTP_200_OK)
