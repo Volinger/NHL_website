@@ -57,9 +57,9 @@ class Players(models.Model):
 
 class SkaterSeasonStats(models.Model):
 
-    season_id = models.IntegerField()
-    player_id = models.IntegerField()
-    team_id = models.IntegerField()
+    season = models.ForeignKey('Seasons', to_field='season', on_delete=models.CASCADE)
+    player = models.ForeignKey('Players', on_delete=models.CASCADE)
+    team = models.ForeignKey('Teams', on_delete=models.CASCADE)
     timeOnIce = models.FloatField(null=True)
     assists = models.IntegerField(null=True)
     goals = models.IntegerField(null=True)

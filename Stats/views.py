@@ -2,11 +2,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.response import Response
-from NHL_Models import models
+from NHL_Database import models
 from rest_framework import serializers
 from Stats import serializers
-import json
-from django.db.models import Avg, Count, Min, Sum
 
 
 class StatsViewSet(viewsets.GenericViewSet):
@@ -61,3 +59,33 @@ class StatsViewSet(viewsets.GenericViewSet):
         records = models.Seasons.objects.all()
         data = serializers.SeasonsSerializer(records, many=True)
         return Response(data=data.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def positions(self, request):
+        """
+        Fetches list of skater positions.
+        :param request:
+        :return:
+        """
+        records = [item['primaryPosition'] for item in models.Players.objects.values('primaryPosition').distinct()]
+        return Response(data=records, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def teams(self, request):
+        """
+        Fetches list of NHL teams.
+        :param request:
+        :return:
+        """
+        records = [item['team'] for item in models.Teams.objects.order_by('team').values('team').distinct()]
+        return Response(data=records, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def nationalities(self, request):
+        """
+        Fetches list of all player's nationalities.
+        :param request:
+        :return:
+        """
+        records = [item['nationality'] for item in models.Players.objects.order_by('nationality').values('nationality').distinct()]
+        return Response(data=records, status=status.HTTP_200_OK)

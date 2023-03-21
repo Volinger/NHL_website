@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from NHL_Models import models
+from NHL_Database import models
 
 
 class PlayersSerializer(serializers.ModelSerializer):
