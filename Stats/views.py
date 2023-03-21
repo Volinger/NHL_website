@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from NHL_Database import models
 from rest_framework import serializers
 from Stats import serializers
-
+from django.db.models import Q
 
 class StatsViewSet(viewsets.GenericViewSet):
 
@@ -19,8 +19,18 @@ class StatsViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def skater_stats(self, request):
-        seasons = int(request.query_params['seasons'])
-        records = models.SkaterSeasonStats.objects.filter(season_id=seasons).all()[:10]
+        # params = {key: value[0] if len(value) == 1 else value for key, value in request.query_params.items()}
+        # params['team__team'] = params.pop('team')
+        # query = models.SkaterSeasonStats.objects
+        # filters = self.build_optional_filters(params=params, query=query)
+        # records = query.get(filters).all()
+        params = request.query_params
+        query = models.SkaterSeasonStats.objects
+        if params['team'] != '-':
+            query = query.filter(team__team=params['team'])
+        if params['position'] != '-':
+            query = query.filter(player__primaryPosition=params['position'])
+        records = query.all()[:20]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
@@ -33,10 +43,24 @@ class StatsViewSet(viewsets.GenericViewSet):
         :param request:
         :return:
         """
-        player_id = request.query_params['player_id']
-        records = models.SkaterSeasonStats.objects.filter(player_id=player_id).all()
+        params = request.query_params
+        query = models.SkaterSeasonStats.objects.filter(player_id=request.query_params.id).all()
+        query = self.build_optional_filters(params, query)
+        records = query.all()
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         return Response(data=data.data, status=status.HTTP_200_OK)
+
+    # @staticmethod
+    # def build_optional_filters(params, query):
+    #     """
+    #     Check params and append filter statements to query if they are not empty.
+    #     :return:
+    #     """
+    #     query = Q()
+    #     for key in params.keys():
+    #         if params[key] != '-':
+    #             query &= Q(**{key: params[key]})
+    #     return query
 
     @action(detail=False, methods=['get'])
     def players(self, request):

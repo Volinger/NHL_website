@@ -11,10 +11,10 @@ class PlayersSerializer(serializers.ModelSerializer):
 
 
 class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
-    season_id = serializers.IntegerField(label='Season')
-    # player_name = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
-    # player_surname = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='lastName', label='Last Name')
-    # team_id = serializers.SlugRelatedField(many=False, slug_field='team', read_only=True, label="Team")
+    season = serializers.SlugRelatedField(many=False, slug_field='season', read_only=True, label='Season')
+    player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
+    player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
+    team = serializers.SlugRelatedField(many=False, slug_field='team', read_only=True, label="Team")
     timeOnIce = serializers.FloatField(label='TOI')
     assists = serializers.IntegerField(label='A')
     goals = serializers.IntegerField(label='G')
@@ -42,7 +42,7 @@ class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
     class Meta:
 
         model = models.SkaterSeasonStats
-        fields = '__all__'
+        exclude = ['id']
 
 
 class SeasonsSerializer(serializers.ModelSerializer):
