@@ -15,34 +15,33 @@ class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
     player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
     player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
     team = serializers.SlugRelatedField(many=False, slug_field='team', read_only=True, label="Team")
-    timeOnIce = serializers.FloatField(label='TOI')
+    games = serializers.IntegerField(label='GP')
     assists = serializers.IntegerField(label='A')
     goals = serializers.IntegerField(label='G')
-    pim = serializers.IntegerField(label='PIM')
+    points = serializers.IntegerField(label='P')
+    plusMinus = serializers.IntegerField(label='+/-')
     shots = serializers.IntegerField(label='SH')
-    games = serializers.IntegerField(label='GP')
     hits = serializers.IntegerField(label='HIT')
     powerPlayGoals = serializers.IntegerField(label='PPG')
     powerPlayPoints = serializers.IntegerField(label='PPP')
-    powerPlayTimeOnIce = serializers.FloatField(label='PPTOI')
-    evenTimeOnIce = serializers.FloatField(label='EVTOI')
-    penaltyMinutes = serializers.IntegerField(label='PM')
-    faceOffPct = serializers.FloatField(label='FO%')
-    shotPct = serializers.FloatField(label='SH%')
+    powerPlayTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='PPTOI')
+    evenTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='EVTOI')
+    penaltyMinutes = serializers.IntegerField(label='PIM')
+    faceOffPct = serializers.DecimalField(max_digits=None, decimal_places=2, label='FO%')
+    shotPct = serializers.DecimalField(max_digits=None, decimal_places=2, label='SH%')
     gameWinningGoals = serializers.IntegerField(label='GWG')
     overTimeGoals = serializers.IntegerField(label='OTG')
     shortHandedGoals = serializers.IntegerField(label='SHG')
     shortHandedPoints = serializers.IntegerField(label='SHP')
-    shortHandedTimeOnIce = serializers.FloatField(label='SHTOI')
+    shortHandedTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='SHTOI')
     blocked = serializers.IntegerField(label='BLK')
-    plusMinus = serializers.IntegerField(label='+/-')
-    points = serializers.IntegerField(label='P')
     shifts = serializers.IntegerField(label='SHIFTS')
+    timeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='TOI (min)')
 
     class Meta:
 
         model = models.SkaterSeasonStats
-        exclude = ['id']
+        exclude = ['id', 'pim']
 
 
 class SeasonsSerializer(serializers.ModelSerializer):

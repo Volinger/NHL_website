@@ -76,7 +76,6 @@ class ScrapingViewset(viewsets.GenericViewSet):
 		parser_class = getattr(Data_Parser, class_)
 		parser = parser_class()
 		parser.update_data(**data)
-		# tasks.update_table.delay(request.data)
 		return Response(status=status.HTTP_200_OK)
 
 

@@ -30,7 +30,16 @@ class StatsViewSet(viewsets.GenericViewSet):
             query = query.filter(team__team=params['team'])
         if params['position'] != '-':
             query = query.filter(player__primaryPosition=params['position'])
-        records = query.all()[:20]
+        start_year = params['season_start']
+        end_year = params['season_end']
+        if start_year != '-':
+            if end_year != '-':
+                query = query.filter(season__season__range=(start_year, end_year))
+            else:
+                query = query.filter(season__season__gte=start_year)
+        elif end_year != '-':
+            query = query.filter(season__season__lte=start_year)
+        records = query.order_by(params['order']).all()[:20]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
