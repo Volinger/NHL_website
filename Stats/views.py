@@ -6,12 +6,24 @@ from NHL_Database import models
 from rest_framework import serializers
 from Stats import serializers
 from django.db.models import Q
+import time
 
 class StatsViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def standings(self, request):
-        records = models.Teamstats.objects.all()[:20]
+        params = request.query_params
+        query = models.Teamstats.objects
+        start_year = params['season_start']
+        end_year = params['season_end']
+        if start_year != '-':
+            if end_year != '-':
+                query = query.filter(season__season__range=(start_year, end_year))
+            else:
+                query = query.filter(season__season__gte=start_year)
+        elif end_year != '-':
+            query = query.filter(season__season__lte=end_year)
+        records = query.order_by(params['order']).all()[:20]
         data = serializers.TeamStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.TeamStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
@@ -19,15 +31,12 @@ class StatsViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def skater_stats(self, request):
-        # params = {key: value[0] if len(value) == 1 else value for key, value in request.query_params.items()}
-        # params['team__team'] = params.pop('team')
-        # query = models.SkaterSeasonStats.objects
-        # filters = self.build_optional_filters(params=params, query=query)
-        # records = query.get(filters).all()
         params = request.query_params
         query = models.SkaterSeasonStats.objects
         if params['team'] != '-':
             query = query.filter(team__team=params['team'])
+        if params['nationality'] != '-':
+            query = query.filter(player__nationality=params['nationality'])
         if params['position'] != '-':
             query = query.filter(player__primaryPosition=params['position'])
         start_year = params['season_start']
@@ -38,7 +47,7 @@ class StatsViewSet(viewsets.GenericViewSet):
             else:
                 query = query.filter(season__season__gte=start_year)
         elif end_year != '-':
-            query = query.filter(season__season__lte=start_year)
+            query = query.filter(season__season__lte=end_year)
         records = query.order_by(params['order']).all()[:20]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]
@@ -53,9 +62,7 @@ class StatsViewSet(viewsets.GenericViewSet):
         :return:
         """
         params = request.query_params
-        query = models.SkaterSeasonStats.objects.filter(player_id=request.query_params.id).all()
-        query = self.build_optional_filters(params, query)
-        records = query.all()
+        records = models.SkaterSeasonStats.objects.filter(player_id=request.query_params['player_id']).all()
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         return Response(data=data.data, status=status.HTTP_200_OK)
 
@@ -122,3 +129,15 @@ class StatsViewSet(viewsets.GenericViewSet):
         """
         records = [item['nationality'] for item in models.Players.objects.order_by('nationality').values('nationality').distinct()]
         return Response(data=records, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def team_history(self, request):
+        """
+        Fetches stats for teams history.
+        :param request:
+        :return:
+        """
+        params = request.query_params
+        records = models.Teamstats.objects.filter(team__team=params['team']).all()
+        data = serializers.TeamStatsSerializer(records, many=True)
+        return Response(data=data.data, status=status.HTTP_200_OK)
