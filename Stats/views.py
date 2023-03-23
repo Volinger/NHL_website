@@ -63,18 +63,6 @@ class StatsViewSet(viewsets.GenericViewSet):
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         return Response(data=data.data, status=status.HTTP_200_OK)
 
-    # @staticmethod
-    # def build_optional_filters(params, query):
-    #     """
-    #     Check params and append filter statements to query if they are not empty.
-    #     :return:
-    #     """
-    #     query = Q()
-    #     for key in params.keys():
-    #         if params[key] != '-':
-    #             query &= Q(**{key: params[key]})
-    #     return query
-
     @action(detail=False, methods=['get'])
     def players(self, request):
         """
@@ -131,7 +119,7 @@ class StatsViewSet(viewsets.GenericViewSet):
     def team_history(self, request):
         """
         Fetches stats for teams history.
-        :param request:
+        :param request: 'team': int
         :return:
         """
         params = request.query_params

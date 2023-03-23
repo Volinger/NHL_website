@@ -82,6 +82,5 @@ class TeamStatsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Teamstats
-        # fields = '__all__'
         exclude = ['id', 'winOutshootOpp', 'winOutshotByOpp', 'winLeadSecondPer', 'winLeadFirstPer', 'winOppScoreFirst',
                    'winScoreFirst', 'evGGARatio']

@@ -56,3 +56,49 @@ class Test_player_career(TestCase):
         client = APIClient()
         response = client.get(reverse('Stats-player-career'), {"player_id": 1}, format='json')
         self.assertEqual(response.status_code, 200)
+
+class Test_players(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-players'), {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+class Test_seasons(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-seasons'), {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+
+class Test_positions(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-positions'), {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+
+class Test_teams(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-teams'), {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+
+class Test_nationalities(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-nationalities'), {}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+
+class Test_team_history(TestCase):
+
+    def test_response(self):
+        client = APIClient()
+        response = client.get(reverse('Stats-team-history'), {'team': 1}, format='json')
+        self.assertEqual(response.status_code, 200)
