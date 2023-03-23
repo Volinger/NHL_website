@@ -14,36 +14,38 @@ class StatsViewSet(viewsets.GenericViewSet):
         params = request.query_params
         query = models.Teamstats.objects
         query = self.query_filter_seasons(params, query)
-        records = query.order_by(params['order']).all()[:20]
+        if 'order' in params:
+            query = query.order_by(params['order'])
+        records = query.all()[:20]
         data = serializers.TeamStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.TeamStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
         return Response(data=content, status=status.HTTP_200_OK)
 
     def query_filter_seasons(self, params, query):
-        start_year = params['season_start']
-        end_year = params['season_end']
-        if start_year != '-':
-            if end_year != '-':
-                query = query.filter(season__season__range=(start_year, end_year))
+        if 'season_start' in params:
+            if 'season_end' in params:
+                query = query.filter(season__season__range=(params['season_start'], params['season_end']))
             else:
-                query = query.filter(season__season__gte=start_year)
-        elif end_year != '-':
-            query = query.filter(season__season__lte=end_year)
+                query = query.filter(season__season__gte=params['season_start'])
+        elif 'season_end' in params:
+            query = query.filter(season__season__lte=params['season_end'])
         return query
 
     @action(detail=False, methods=['get'])
     def skater_stats(self, request):
         params = request.query_params
         query = models.SkaterSeasonStats.objects
-        if params['team'] != '-':
+        if 'team' in params:
             query = query.filter(team__team=params['team'])
-        if params['nationality'] != '-':
+        if 'nationality' in params:
             query = query.filter(player__nationality=params['nationality'])
-        if params['position'] != '-':
+        if 'position' in params:
             query = query.filter(player__primaryPosition=params['position'])
         query = self.query_filter_seasons(params, query)
-        records = query.order_by(params['order']).all()[:20]
+        if 'order' in params:
+            query = query.order_by(params['order'])
+        records = query.all()[:20]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]
         content = {'data': data.data, 'labels': labels}
@@ -53,7 +55,7 @@ class StatsViewSet(viewsets.GenericViewSet):
     def player_career(self, request):
         """
         Fetches stats for entire career of selected player.
-        :param request:
+        :param request: 'player_id': int
         :return:
         """
         params = request.query_params
