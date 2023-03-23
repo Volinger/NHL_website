@@ -1,7 +1,7 @@
 [
    {
       "model":"NHL_Database.seasons",
-      "pk":83,
+      "pk":1,
       "fields":{
          "season":20002001,
          "games":82
@@ -9,7 +9,7 @@
    },
    {
       "model":"NHL_Database.seasons",
-      "pk":84,
+      "pk":2,
       "fields":{
          "season":20012002,
          "games":82

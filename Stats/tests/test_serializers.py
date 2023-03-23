@@ -26,11 +26,12 @@ class Test_PlayersSerializer(TestCase):
 
 
 class SkaterSeasonStatsSerializer(TestCase):
+    fixtures = ['test_data.json']
     def setUp(self):
         self.attr = {
-            'season': models.Seasons(season=20002001, games=80),
-            'player': models.Players(firstName='John', lastName='Connor', nationality='CAN', primaryPosition='D'),
-            'team': models.Teams(team='NSH', firstYearOfPlay=1900, active=True),
+            'season':  models.Seasons.objects.all()[0],
+            'player': models.Players.objects.all()[0],
+            'team': models.Teams.objects.all()[0],
             'games': 80,
             'assists': 1,
             'goals': 2,
