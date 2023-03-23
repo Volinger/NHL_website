@@ -5,8 +5,7 @@ from rest_framework.response import Response
 from NHL_Database import models
 from rest_framework import serializers
 from Stats import serializers
-from django.db.models import Q
-import time
+
 
 class StatsViewSet(viewsets.GenericViewSet):
 
@@ -14,6 +13,14 @@ class StatsViewSet(viewsets.GenericViewSet):
     def standings(self, request):
         params = request.query_params
         query = models.Teamstats.objects
+        query = self.query_filter_seasons(params, query)
+        records = query.order_by(params['order']).all()[:20]
+        data = serializers.TeamStatsSerializer(records, many=True)
+        labels = [field.label for field in serializers.TeamStatsSerializer().get_fields().values()]
+        content = {'data': data.data, 'labels': labels}
+        return Response(data=content, status=status.HTTP_200_OK)
+
+    def query_filter_seasons(self, params, query):
         start_year = params['season_start']
         end_year = params['season_end']
         if start_year != '-':
@@ -23,11 +30,7 @@ class StatsViewSet(viewsets.GenericViewSet):
                 query = query.filter(season__season__gte=start_year)
         elif end_year != '-':
             query = query.filter(season__season__lte=end_year)
-        records = query.order_by(params['order']).all()[:20]
-        data = serializers.TeamStatsSerializer(records, many=True)
-        labels = [field.label for field in serializers.TeamStatsSerializer().get_fields().values()]
-        content = {'data': data.data, 'labels': labels}
-        return Response(data=content, status=status.HTTP_200_OK)
+        return query
 
     @action(detail=False, methods=['get'])
     def skater_stats(self, request):
@@ -39,15 +42,7 @@ class StatsViewSet(viewsets.GenericViewSet):
             query = query.filter(player__nationality=params['nationality'])
         if params['position'] != '-':
             query = query.filter(player__primaryPosition=params['position'])
-        start_year = params['season_start']
-        end_year = params['season_end']
-        if start_year != '-':
-            if end_year != '-':
-                query = query.filter(season__season__range=(start_year, end_year))
-            else:
-                query = query.filter(season__season__gte=start_year)
-        elif end_year != '-':
-            query = query.filter(season__season__lte=end_year)
+        query = self.query_filter_seasons(params, query)
         records = query.order_by(params['order']).all()[:20]
         data = serializers.SkaterSeasonStatsSerializer(records, many=True)
         labels = [field.label for field in serializers.SkaterSeasonStatsSerializer().get_fields().values()]

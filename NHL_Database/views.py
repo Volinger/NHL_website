@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ScrapingViewset(viewsets.GenericViewSet):
 	def get_serializer_class(self):
 		return serializers.Serializer
@@ -48,15 +49,6 @@ class ScrapingViewset(viewsets.GenericViewSet):
 		if request.method == 'GET':
 			return Response(status=status.HTTP_200_OK)
 		tasks.parse_table.delay(request.data)
-		# data = request.data
-		# table = data['table']
-		# model = getattr(models, table)
-		# model.objects.all().delete()
-		# class_ = f'{table}Parser'
-		# parser_class = getattr(Data_Parser, class_)
-		# parser = parser_class()
-		# parser.process_data()
-
 		return Response(status=status.HTTP_200_OK)
 
 	@action(detail=False, methods=['post'])

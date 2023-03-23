@@ -13,6 +13,7 @@ these data are provided by other endpoints, either provide data manually or scra
 import requests
 from abc import abstractmethod
 
+
 class BaseScraper:
     """
     Interface for data scraping classes.
