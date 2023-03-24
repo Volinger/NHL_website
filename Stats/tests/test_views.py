@@ -1,7 +1,6 @@
 from django.urls import reverse
 from rest_framework import status
 from django.test import TestCase
-from rest_framework.test import APITestCase
 import Stats.views as views
 import NHL_Database.models as models
 from rest_framework.test import APIClient
