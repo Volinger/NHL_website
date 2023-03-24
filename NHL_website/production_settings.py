@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-ho%v_r73mpp6+o2x1u7uhd$l-b&a9adi44muf*0i(5e+fq94l4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['nhl-website.azurewebsites.net']
 
 
 # Application definition
@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'NHL_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': "/home/site/wwwroot/database/db.sqlite3"
         # 'NAME': '/home/vollinger/PycharmProjects/NHL_Scraper/db.sqlite3'
     }
 }
