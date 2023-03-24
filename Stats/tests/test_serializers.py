@@ -27,6 +27,7 @@ class Test_PlayersSerializer(TestCase):
 
 class SkaterSeasonStatsSerializer(TestCase):
     fixtures = ['test_data.json']
+    maxDiff = None
     def setUp(self):
         self.attr = {
             'season':  models.Seasons.objects.all()[0],
@@ -43,14 +44,14 @@ class SkaterSeasonStatsSerializer(TestCase):
             'powerPlayPoints': 8,
             'powerPlayTimeOnIce': 9.123,
             'evenTimeOnIce': 10.123,
-            'penaltyMinutes': 11.123,
+            'penaltyMinutes': 11,
             'faceOffPct': 12.123,
             'shotPct': 13.123,
             'gameWinningGoals': 14,
             'overTimeGoals': 15,
             'shortHandedGoals': 16,
             'shortHandedPoints': 17,
-            'shortHandedTimeOnIce': 18,
+            'shortHandedTimeOnIce': 18.123,
             'blocked': 19,
             'shifts': 20,
             'timeOnIce': 21.123,
@@ -64,5 +65,10 @@ class SkaterSeasonStatsSerializer(TestCase):
         self.assertEqual(set(data.keys()), set(self.attr.keys()))
 
     def test_fields_value(self):
-        data = self.serializer.data
-        self.assertEqual(set(data.values()), set(self.attr.values()))
+        result = dict(self.serializer.data)
+        result['player'] = dict(result['player'])
+        expected = self.attr
+        expected['season'] = expected['season'].season
+        expected['team'] = expected['team'].team
+        expected['player'] = dict(serializers.PlayersSerializer(self.attr['player']).data)
+        self.assertEqual(result, expected)
