@@ -45,3 +45,62 @@ class Test_Teams(TestCase):
         keys = ['id', 'name', 'firstYearOfPlay', 'active']
         result = {key: value for key, value in data.items() if key in keys}
         self.assertEqual(result, self.expected)
+
+
+class Test_TeamStats(TestCase):
+
+    def setUp(self):
+        self.expected = {
+            'gamesPlayed': 82,
+            'wins': 48,
+            'losses': 19,
+            'ot': 3,
+            'pts': 111,
+            'ptPctg': '67.7',
+            'goalsPerGame': 3.598,
+            'goalsAgainstPerGame': 2.378,
+            'evGGARatio': 1.1969,
+            'powerPlayPercentage': '22.9',
+            'powerPlayGoals': 71.0,
+            'powerPlayGoalsAgainst': 49.0,
+            'powerPlayOpportunities': 310.0,
+            'penaltyKillPercentage': '84.7',
+            'shotsPerGame': 31.5854,
+            'shotsAllowed': 24.6829,
+            'winScoreFirst': 0.727,
+            'winOppScoreFirst': 0.421,
+            'winLeadFirstPer': 0.839,
+            'winLeadSecondPer': 0.921,
+            'winOutshootOpp': 0.583,
+            'winOutshotByOpp': 0.684,
+            'faceOffsTaken': 5259.0,
+            'faceOffsWon': 2597.0,
+            'faceOffsLost': 2662.0,
+            'faceOffWinPercentage': '49.4',
+            'shootingPctg': 11.4,
+            'savePctg': 0.904
+        }
+        
+    def test_data(self):
+        scraper = scrapers.TeamStats()
+        result = scraper.get_data(season=20002001, team=1)['stats'][0]['splits'][0]['stat']
+        self.assertEqual(result, self.expected)
+
+
+class Test_Players(TestCase):
+
+    def setUp(self):
+        self.expected = {
+            'primaryPosition': 'L',
+            'firstName': 'Greg',
+            'lastName': 'Adams',
+            'nationality': 'CAN'
+        }
+
+    def test_data(self):
+        scraper = scrapers.Players()
+        data = scraper.get_data(player_id=8444894)
+        keys = ['firstName', 'lastName', 'nationality']
+        result = {key: value for key, value in data.items() if key in keys}
+        result['primaryPosition'] = data['primaryPosition']['code']
+        self.assertEqual(result, self.expected)
