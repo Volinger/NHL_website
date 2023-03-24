@@ -1,6 +1,6 @@
 from celery import shared_task
 import time
-from NHL_Database import Data_Parser, models
+from NHL_Database import data_parser, models
 
 
 # from celery.utils.log import get_task_logger

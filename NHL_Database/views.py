@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from NHL_Database import Data_Parser, models
+from NHL_Database import data_parser, models
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import serializers
