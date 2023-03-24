@@ -87,6 +87,53 @@ class Test_TeamStats(TestCase):
         self.assertEqual(result, self.expected)
 
 
+class Test_SeasonTeamRoster(TestCase):
+
+    def setUp(self):
+        self.expected = [
+            8446165,
+            8446309,
+            8447958,
+            8449450,
+            8449477,
+            8449654,
+            8451715,
+            8451805,
+            8457491,
+            8458125,
+            8458348,
+            8458517,
+            8458637,
+            8458978,
+            8459429,
+            8459454,
+            8460465,
+            8460542,
+            8462037,
+            8465003,
+            8465005,
+            8465185,
+            8466173,
+            8466261,
+            8466288,
+            8466371,
+            8467351,
+            8467856,
+            8467915,
+            8468615,
+            8451860,
+            8452157,
+            8455710,
+            8462234
+        ]
+
+    def test_data(self):
+        scraper = scrapers.SeasonTeamRoster()
+        data = scraper.get_data(team=1, season=20002001)
+        result = [person['person']['id'] for person in data['teams'][0]['roster']['roster']]
+        self.assertEqual(result, self.expected)
+
+
 class Test_Players(TestCase):
 
     def setUp(self):
