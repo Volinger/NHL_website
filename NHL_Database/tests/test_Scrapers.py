@@ -151,3 +151,20 @@ class Test_Players(TestCase):
         result = {key: value for key, value in data.items() if key in keys}
         result['primaryPosition'] = data['primaryPosition']['code']
         self.assertEqual(result, self.expected)
+
+
+class Test_PlayerYearByYearStats(TestCase):
+
+    def setUp(self):
+        self.expected = {
+            'assists': 43,
+             'goals': 36,
+             'pim': 9,
+             'games': 40,
+             'penaltyMinutes': '9',
+             'points': 79
+        }
+    def test_data(self):
+        scraper = scrapers.PlayerYearByYearStats()
+        result = scraper.get_data(player_id=8444894)['stats'][0]['splits'][0]['stat']
+        self.assertEqual(result, self.expected)
