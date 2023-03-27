@@ -8,6 +8,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'NHL_website.settings')
 
 app = Celery('NHL_Database')
 
+# app.conf.broker_url = 'redis://localhost:5674/0'
+# app.conf.result_backend = 'redis://localhost:5674/0'
+
+app.conf.broker_url = 'redis://redis-broker.azurewebsites.net'
+app.conf.result_backend = 'redis://redis-broker.azurewebsites.net'
+
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys
@@ -21,22 +27,3 @@ app.autodiscover_tasks()
 @app.task(bind=True, ignore_result=True)
 def debug_task(self):
     print(f'Request: {self.request!r}')
-
-# @app.on_after_configure.connect
-# def setup_periodic_tasks(sender, **kwargs):
-#     # Calls test('hello') every 10 seconds.
-#     sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
-#
-#     # Calls test('world') every 30 seconds
-#     sender.add_periodic_task(30.0, test.s('world'), expires=10)
-#
-#     # Executes every Monday morning at 7:30 a.m.
-#     sender.add_periodic_task(
-#         crontab(hour=7, minute=30, day_of_week=1),
-#         test.s('Happy Mondays!'),
-#     )
-#
-#
-# @app.task
-# def test(arg):
-#     print(arg)

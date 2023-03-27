@@ -46,9 +46,9 @@ class ScrapingViewset(viewsets.GenericViewSet):
 		:param request:
 		:return:
 		"""
-		if request.method == 'GET':
-			return Response(status=status.HTTP_200_OK)
-		tasks.parse_table.delay(request.data)
+		# if request.method == 'GET':
+		# 	return Response(status=status.HTTP_200_OK)
+		# tasks.parse_table.delay(request.data)
 		return Response(status=status.HTTP_200_OK)
 
 	@action(detail=False, methods=['post'])
