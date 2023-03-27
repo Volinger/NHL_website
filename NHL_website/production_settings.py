@@ -17,10 +17,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_TASK_ALWAYS_EAGER = True
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_BACKEND = 'db+sqlite:///results.sqlite'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TASK_ALWAYS_EAGER = True
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -31,7 +35,7 @@ SECRET_KEY = 'django-insecure-ho%v_r73mpp6+o2x1u7uhd$l-b&a9adi44muf*0i(5e+fq94l4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['nhl-website.azurewebsites.net']
 
 
 # Application definition
@@ -46,8 +50,7 @@ INSTALLED_APPS = [
     'Stats',
     'NHL_Database',
     'rest_framework',
-    'corsheaders',
-    # 'django_apscheduler'
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -89,7 +92,7 @@ WSGI_APPLICATION = 'NHL_website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': "/home/site/wwwroot/database/db.sqlite3"
         # 'NAME': '/home/vollinger/PycharmProjects/NHL_Scraper/db.sqlite3'
     }
 }

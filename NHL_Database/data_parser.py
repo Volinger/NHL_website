@@ -3,7 +3,7 @@ Processes scraped data and parses them to database. Combines scraping and databa
 """
 
 from NHL_Database import models
-import NHL_Database.Scrapers as Scraping
+import NHL_Database.scrapers as Scraping
 import logging
 
 logger = logging.getLogger(__name__)

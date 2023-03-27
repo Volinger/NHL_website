@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from NHL_Database import Data_Parser, models
+from NHL_Database import data_parser, models
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import serializers
@@ -32,7 +32,7 @@ class ScrapingViewset(viewsets.GenericViewSet):
 				model = getattr(models, table)
 				model.objects.all().delete()
 				class_ = f'{table}Parser'
-				parser_class = getattr(Data_Parser, class_)
+				parser_class = getattr(data_parser, class_)
 				parser = parser_class()
 				parser.process_data()
 				return Response(status=status.HTTP_200_OK)
@@ -65,7 +65,7 @@ class ScrapingViewset(viewsets.GenericViewSet):
 		data = request.data
 		table = data['table']
 		class_ = f'{table}Parser'
-		parser_class = getattr(Data_Parser, class_)
+		parser_class = getattr(data_parser, class_)
 		parser = parser_class()
 		parser.update_data(**data)
 		return Response(status=status.HTTP_200_OK)
