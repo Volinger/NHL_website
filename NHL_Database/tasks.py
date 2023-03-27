@@ -1,4 +1,4 @@
-from NHL_Database import Data_Parser, models
+from NHL_Database import data_parser, models
 
 
 # from celery.utils.log import get_task_logger
@@ -11,7 +11,7 @@ def init_db(x, y):
         model = getattr(models, table)
         model.objects.all().delete()
         class_ = f'{table}Parser'
-        parser_class = getattr(Data_Parser, class_)
+        parser_class = getattr(data_parser, class_)
         parser = parser_class()
         parser.process_data()
 
@@ -20,7 +20,7 @@ def parse_table(data):
     model = getattr(models, table)
     model.objects.all().delete()
     class_ = f'{table}Parser'
-    parser_class = getattr(Data_Parser, class_)
+    parser_class = getattr(data_parser, class_)
     parser = parser_class()
     parser.process_data()
 

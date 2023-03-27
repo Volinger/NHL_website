@@ -12,8 +12,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
 from .something_update import update_something
 import sys, socket
-import time
+import time, datetime
 import json
+import os
+import NHL_Database.tasks as tasks
 
 def start():
     try:
@@ -33,14 +35,34 @@ def init_tables():
     This is run before regular checking scheduler is launched.
     :return:
     """
-    with
-    print("a")
+    config = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Scraping_config.json')
+    with open(config, 'r') as cfg:
+        table_config = json.load(cfg)
+    for table in table_config:
+        process_table(config, table)
     time.sleep(5)
-    print("a")
     scheduler = BackgroundScheduler()
     scheduler.add_job(schedule_updates, trigger='interval', seconds=5)
     scheduler.start()
     pass
+
+
+def process_table(config, table):
+    if table is None:
+        starttime = datetime.datetime.now()
+        parsing_successful = tasks.parse_table(table)
+        if parsing_successful:
+            update_scraping_config(config, starttime, table)
+
+
+def update_scraping_config(config, starttime, table):
+    with open(config, 'r') as cfg:
+        table_config = json.load(cfg)
+        table_config[table] = starttime
+        result = json.dumps(table_config)
+    with open(config, 'w') as cfg:
+        cfg.write(result)
+
 
 def schedule_updates():
     """

@@ -7,4 +7,4 @@ class NhlDatabaseConfig(AppConfig):
 
     def ready(self):
         from . import scheduler
-        updater.start()
+        scheduler.start()
