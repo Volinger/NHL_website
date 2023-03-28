@@ -1,3 +1,9 @@
+"""
+Defines tasks related to scraping which should be performed.
+
+The scope of tasks is what and how to do, not when - that is handled separately by scheduler module.
+"""
+
 import datetime
 
 from NHL_Database import data_parser, models
@@ -17,32 +23,42 @@ def init_db(x, y):
         parser = parser_class()
         parser.process_data()
 
+
 def parse_table(data):
+    """
+    Parses table data anew. If there are for any reason old data in table, they are deleted for consistency.
+    :param data:
+    :return:
+    """
+    start_time = datetime.datetime.now()
     table = data['table']
     model = getattr(models, table)
     model.objects.all().delete()
     class_ = f'{table}Parser'
     parser_class = getattr(data_parser, class_)
     parser = parser_class()
-    parser.process_data()
+    parser.new_data()
+    parser.records.save()
+    models.TableState.update_table_state(table, start_time)
 
 def update_table(data):
-    # table = data['table']
-    # update_params = data['update_params']
-    # remove_records = data['remove_records']
-    # model = getattr(models, table)
-    # model.objects.filter(remove_records).all().delete()
-    # class_ = f'{table}Parser'
-    # parser_class = getattr(Data_Parser, class_)
-    # parser = parser_class()
-    # parser.process_data()
-    pass
+    start_time = datetime.datetime.now()
+    table = data['table']
+    update_params = data['update_params']
+    remove_records = data['remove_records']
+    model = getattr(models, table)
+    model.objects.filter(remove_records).all().delete()
+    class_ = f'{table}Parser'
+    parser_class = getattr(Data_Parser, class_)
+    parser = parser_class()
+    parser.update_data()
+    parser.records.save()
+    models.TableState.update_table_state(table, start_time)
 
 
 def init_tables():
     """
     Check config if all tables have been initialized. If not, initialize them.
-    This is run before regular checking scheduler is launched.
     :return:
     """
     models.TableState.init_tables()
@@ -50,9 +66,6 @@ def init_tables():
     for table in table_state:
         print(f'processing table: {table.model_name}')
         process_table(table)
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(daily_check, trigger='cron', hour=8)
-    # scheduler.start()
 
 
 def process_table(table_state):
@@ -63,12 +76,11 @@ def process_table(table_state):
     :return:
     """
     if table_state.last_update is None:
-        start_time = datetime.datetime.now()
         print(f'parsing table: {table_state.model_name} starts')
         parse_table({'table': table_state.model_name})
         print(f'parsing table: {table_state.model_name} ends')
-        models.TableState.update_table_state(table_state.model_name, start_time)
-
+    else:
+        update_table({'table': table_state.model_name})
 
 def daily_check():
     """

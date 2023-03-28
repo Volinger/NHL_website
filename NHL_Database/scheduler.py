@@ -26,5 +26,9 @@ def start():
         scheduler.start()
 
 
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(daily_check, trigger='cron', hour=8)
+    # scheduler.start()
+
 
 
