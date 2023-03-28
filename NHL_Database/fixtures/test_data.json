@@ -1,5 +1,13 @@
 [
    {
+      "model":"NHL_Database.tablestate",
+      "pk":1,
+      "fields":{
+         "model_name":"Seasons",
+         "last_update":null
+      }
+   },
+   {
       "model":"NHL_Database.seasons",
       "pk":1,
       "fields":{
@@ -191,7 +199,7 @@
       "fields":{
          "season":20002001,
          "player":8444894,
-         "team":13,
+         "team":1,
          "timeOnIce":863.4333333333333,
          "assists":12,
          "goals":11,
@@ -223,7 +231,7 @@
       "fields":{
          "season":20002001,
          "player":8444919,
-         "team":20,
+         "team":2,
          "timeOnIce":1607.75,
          "assists":19,
          "goals":1,
@@ -255,7 +263,7 @@
       "fields":{
          "season":20012002,
          "player":8444919,
-         "team":1,
+         "team":2,
          "timeOnIce":560.3333333333334,
          "assists":3,
          "goals":1,

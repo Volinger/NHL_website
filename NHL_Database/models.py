@@ -1,17 +1,35 @@
 from django.db import models
+from django.apps import apps
 
-# Create your models here.
 
 
 class TableState(models.Model):
 
-    table_name = models.CharField(max_length=256, unique=True)
-    last_update = models.DateTimeField()
+    model_name = models.CharField(max_length=256, unique=True)
+    last_update = models.DateTimeField(null=True)
 
-    def update_table_state(self, table_name, start_time):
-        record = self.objects.filter(table_name=table_name).first()
-        record.last_update = start_time
+    @staticmethod
+    def update_table_state(model_name, last_update):
+        record = TableState.objects.filter(model_name=model_name).first()
+        record.last_update = last_update
         record.save()
+
+    @staticmethod
+    def init_tables():
+        app_name = 'NHL_Database'
+        models_to_skip = ['TableState']
+        app_models = apps.get_app_config(app_name).get_models()
+        seen_models = []
+        for model in app_models:
+            if model.objects.exists():
+                seen_models = seen_models + [model._meta.object_name]
+        current_models = [model['model_name'] for model in TableState.objects.values('model_name')]
+        missing_models = [model for model in seen_models if model not in current_models]
+        missing_models = [model for model in missing_models if model not in models_to_skip]
+        for model in missing_models:
+            new_table = TableState()
+            new_table.model_name = model
+            new_table.save()
 
 class Seasons(models.Model):
 
