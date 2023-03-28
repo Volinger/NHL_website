@@ -1,3 +1,9 @@
+"""
+Order of tables here defines scraping order. This is not correct - if table A which depends upon table B
+would be placed higher, it would be scraped first and this would result in incorrect data being scraped.
+# TBD - implement proper table dependency in form of configuration which will define scraping order.
+"""
+
 from django.db import models
 from django.apps import apps
 
@@ -21,8 +27,7 @@ class TableState(models.Model):
         app_models = apps.get_app_config(app_name).get_models()
         seen_models = []
         for model in app_models:
-            if model.objects.exists():
-                seen_models = seen_models + [model._meta.object_name]
+            seen_models = seen_models + [model._meta.object_name]
         current_models = [model['model_name'] for model in TableState.objects.values('model_name')]
         missing_models = [model for model in seen_models if model not in current_models]
         missing_models = [model for model in missing_models if model not in models_to_skip]

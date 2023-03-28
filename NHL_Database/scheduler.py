@@ -9,14 +9,9 @@ restart.
 """
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
-from .something_update import update_something
-import sys, socket
-import time, datetime
-import json
-import os
-import NHL_Database.tasks as tasks
-import NHL_Database.models as models
+import socket
+from .tasks import init_tables
+
 
 def start():
     try:
@@ -29,46 +24,6 @@ def start():
         scheduler = BackgroundScheduler()
         scheduler.add_job(init_tables)
         scheduler.start()
-
-def init_tables():
-    """
-    Check config if all tables have been initialized. If not, initialize them.
-    This is run before regular checking scheduler is launched.
-    :return:
-    """
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Scraping_config.json')
-    table_state = models.TableState.objects.all()
-    for table in table_state:
-        print(f'processing table: {table_state.table}')
-        process_table(table)
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(daily_check, trigger='cron', hour=8)
-    # scheduler.start()
-
-
-def process_table(config_path, table_state, table):
-    """
-    Loop through table config and process tables which are not initialized.
-    :param config:
-    :param table:
-    :return:
-    """
-    if table_state.last_update is None:
-        start_time = datetime.datetime.now()
-        print(f'parsing table: {table} starts')
-        tasks.parse_table({'table': table})
-        print(f'parsing table: {table} ends')
-        models.TableState.update_table_state(table_state.table, start_time)
-
-
-def daily_check():
-    """
-    Perform update of relavant data on daily basis.
-    :return:
-    """
-    season = models.Seasons.get_current()
-    for table in ['Players', 'Teamstats', 'SkaterSeasonStats']:
-        tasks.parse_table(data={'table': table, 'seasons': [season]})
 
 
 

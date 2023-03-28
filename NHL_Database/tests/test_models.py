@@ -20,9 +20,9 @@ class Test_init_tables(TestCase):
     fixtures = ['test_data.json']
 
     def setUp(self):
-        self.models = ['Seasons', 'Teams', 'Teamstats', 'Players', 'SkaterSeasonStats']
+        self.models = ['Seasons', 'Teams', 'Teamstats', 'Players', 'SkaterSeasonStats'].sort()
 
     def test_init(self):
         models.TableState.init_tables()
-        created_models = [model['model_name'] for model in models.TableState.objects.values('model_name')]
+        created_models = [model['model_name'] for model in models.TableState.objects.values('model_name')].sort()
         self.assertEqual(self.models, created_models)
