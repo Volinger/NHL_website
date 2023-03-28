@@ -16,6 +16,7 @@ import time, datetime
 import json
 import os
 import NHL_Database.tasks as tasks
+import NHL_Database.models as models
 
 def start():
     try:
@@ -24,10 +25,10 @@ def start():
     except socket.error:
         pass
     else:
+        print('starting')
         scheduler = BackgroundScheduler()
         scheduler.add_job(init_tables)
         scheduler.start()
-        print('eest')
 
 def init_tables():
     """
@@ -35,37 +36,40 @@ def init_tables():
     This is run before regular checking scheduler is launched.
     :return:
     """
-    config = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Scraping_config.json')
-    with open(config, 'r') as cfg:
-        table_config = json.load(cfg)
-    for table in table_config:
-        process_table(config, table)
-    time.sleep(5)
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(schedule_updates, trigger='interval', seconds=5)
-    scheduler.start()
-    pass
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Scraping_config.json')
+    table_state = models.TableState.objects.all()
+    for table in table_state:
+        print(f'processing table: {table_state.table}')
+        process_table(table)
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(daily_check, trigger='cron', hour=8)
+    # scheduler.start()
 
 
-def process_table(config, table):
-    if table is None:
-        starttime = datetime.datetime.now()
-        parsing_successful = tasks.parse_table(table)
-        if parsing_successful:
-            update_scraping_config(config, starttime, table)
-
-
-def update_scraping_config(config, starttime, table):
-    with open(config, 'r') as cfg:
-        table_config = json.load(cfg)
-        table_config[table] = starttime
-        result = json.dumps(table_config)
-    with open(config, 'w') as cfg:
-        cfg.write(result)
-
-
-def schedule_updates():
+def process_table(config_path, table_state, table):
     """
-    Schedule updates of tables in regular intervals.
+    Loop through table config and process tables which are not initialized.
+    :param config:
+    :param table:
     :return:
     """
+    if table_state.last_update is None:
+        start_time = datetime.datetime.now()
+        print(f'parsing table: {table} starts')
+        tasks.parse_table({'table': table})
+        print(f'parsing table: {table} ends')
+        models.TableState.update_table_state(table_state.table, start_time)
+
+
+def daily_check():
+    """
+    Perform update of relavant data on daily basis.
+    :return:
+    """
+    season = models.Seasons.get_current()
+    for table in ['Players', 'Teamstats', 'SkaterSeasonStats']:
+        tasks.parse_table(data={'table': table, 'seasons': [season]})
+
+
+
+

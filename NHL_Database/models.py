@@ -3,11 +3,24 @@ from django.db import models
 # Create your models here.
 
 
+class TableState(models.Model):
+
+    table_name = models.CharField(max_length=256, unique=True)
+    last_update = models.DateTimeField()
+
+    def update_table_state(self, table_name, start_time):
+        record = self.objects.filter(table_name=table_name).first()
+        record.last_update = start_time
+        record.save()
+
 class Seasons(models.Model):
 
     season = models.IntegerField(unique=True)
     games = models.IntegerField()
 
+    def get_current(self):
+        current_season = self.objects.all()[-1:]
+        return current_season['season']
 
 class Teams(models.Model):
 
