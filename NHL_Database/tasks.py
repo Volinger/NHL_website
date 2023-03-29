@@ -49,7 +49,7 @@ def update_table(data):
     model = getattr(models, table)
     model.objects.filter(remove_records).all().delete()
     class_ = f'{table}Parser'
-    parser_class = getattr(Data_Parser, class_)
+    parser_class = getattr(data_parser, class_)
     parser = parser_class()
     parser.update_data()
     parser.records.save()
@@ -90,3 +90,4 @@ def daily_check():
     season = models.Seasons.get_current()
     for table in ['Players', 'Teamstats', 'SkaterSeasonStats']:
         parse_table(data={'table': table, 'seasons': [season]})
+
