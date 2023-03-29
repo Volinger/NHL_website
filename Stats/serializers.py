@@ -12,9 +12,9 @@ class PlayersSerializer(serializers.ModelSerializer):
 
 class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
     season = serializers.SlugRelatedField(many=False, slug_field='season', read_only=True, label='Season')
-    player = PlayersSerializer(label='Player')
-    # player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
-    # player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
+    # player = PlayersSerializer(label='Player')
+    player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
+    player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
     team = serializers.SlugRelatedField(many=False, slug_field='team', read_only=True, label="Team")
     games = serializers.IntegerField(label='GP')
     assists = serializers.IntegerField(label='A')
@@ -25,19 +25,19 @@ class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
     hits = serializers.IntegerField(label='HIT')
     powerPlayGoals = serializers.IntegerField(label='PPG')
     powerPlayPoints = serializers.IntegerField(label='PPP')
-    powerPlayTimeOnIce = serializers.FloatField(label='PPTOI')
-    evenTimeOnIce = serializers.FloatField(label='EVTOI')
+    powerPlayTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='PPTOI')
+    evenTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='EVTOI')
     penaltyMinutes = serializers.IntegerField(label='PIM')
-    faceOffPct = serializers.FloatField(label='FO%')
-    shotPct = serializers.FloatField(label='SH%')
+    faceOffPct = serializers.DecimalField(max_digits=None, decimal_places=2, label='FO%')
+    shotPct = serializers.DecimalField(max_digits=None, decimal_places=2, label='SH%')
     gameWinningGoals = serializers.IntegerField(label='GWG')
     overTimeGoals = serializers.IntegerField(label='OTG')
     shortHandedGoals = serializers.IntegerField(label='SHG')
     shortHandedPoints = serializers.IntegerField(label='SHP')
-    shortHandedTimeOnIce = serializers.FloatField(label='SHTOI')
+    shortHandedTimeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='SHTOI')
     blocked = serializers.IntegerField(label='BLK')
     shifts = serializers.IntegerField(label='SHIFTS')
-    timeOnIce = serializers.FloatField(label='TOI (min)')
+    timeOnIce = serializers.DecimalField(max_digits=None, decimal_places=2, label='TOI (min)')
 
     class Meta:
 

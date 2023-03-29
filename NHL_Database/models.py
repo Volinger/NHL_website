@@ -1,13 +1,50 @@
+"""
+Order of tables here defines scraping order. This is not correct - if table A which depends upon table B
+would be placed higher, it would be scraped first and this would result in incorrect data being scraped.
+# TBD - implement proper table dependency in form of configuration which will define scraping order.
+"""
+
 from django.db import models
+from django.apps import apps
 
-# Create your models here.
 
+
+class TableState(models.Model):
+
+    model_name = models.CharField(max_length=256, unique=True)
+    last_update = models.DateTimeField(null=True)
+
+    @staticmethod
+    def update_table_state(model_name, last_update):
+        record = TableState.objects.filter(model_name=model_name).first()
+        record.last_update = last_update
+        record.save()
+
+    @staticmethod
+    def init_tables():
+        app_name = 'NHL_Database'
+        models_to_skip = ['TableState']
+        app_models = apps.get_app_config(app_name).get_models()
+        seen_models = []
+        for model in app_models:
+            seen_models = seen_models + [model._meta.object_name]
+        current_models = [model['model_name'] for model in TableState.objects.values('model_name')]
+        missing_models = [model for model in seen_models if model not in current_models]
+        missing_models = [model for model in missing_models if model not in models_to_skip]
+        for model in missing_models:
+            new_table = TableState()
+            new_table.model_name = model
+            new_table.save()
 
 class Seasons(models.Model):
 
     season = models.IntegerField(unique=True)
     games = models.IntegerField()
 
+    @staticmethod
+    def get_current():
+        current_season = Seasons.objects.all().order_by('-season')[0]
+        return current_season.season
 
 class Teams(models.Model):
 
