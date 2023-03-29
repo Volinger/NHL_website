@@ -4,10 +4,11 @@ Defines tasks related to scraping which should be performed.
 The scope of tasks is what and how to do, not when - that is handled separately by scheduler module.
 """
 
-import datetime
-
+import logging
 from NHL_Database import data_parser, models
 
+
+logger = logging.getLogger(__name__)
 
 # from celery.utils.log import get_task_logger
 #
@@ -30,31 +31,32 @@ def parse_table(data):
     :param data:
     :return:
     """
-    # start_time = datetime.datetime.now()
     table = data['table']
-    model = getattr(models, table)
-    # model.objects.all().delete()
     class_ = f'{table}Parser'
     parser_class = getattr(data_parser, class_)
     parser = parser_class()
     parser.new_data()
-    # parser.records.save()
-    # models.TableState.update_table_state(table, start_time)
+
 
 def update_table(data):
-    start_time = datetime.datetime.now()
+    # start_time = datetime.datetime.now()
+    # table = data['table']
+    # update_params = data['update_params']
+    # remove_records = data['remove_records']
+    # model = getattr(models, table)
+    # model.objects.filter(remove_records).all().delete()
+    # class_ = f'{table}Parser'
+    # parser_class = getattr(data_parser, class_)
+    # parser = parser_class()
+    # parser.update_data()
+    # parser.records.save()
+    # models.TableState.update_table_state(table, start_time)
     table = data['table']
-    update_params = data['update_params']
-    remove_records = data['remove_records']
-    model = getattr(models, table)
-    model.objects.filter(remove_records).all().delete()
+    logger.info(f'updating table {table}.')
     class_ = f'{table}Parser'
     parser_class = getattr(data_parser, class_)
     parser = parser_class()
-    parser.update_data()
-    parser.records.save()
-    models.TableState.update_table_state(table, start_time)
-
+    parser.update_data(data)
 
 def init_tables():
     """
@@ -80,14 +82,15 @@ def process_table(table_state):
         parse_table({'table': table_state.model_name})
         print(f'parsing table: {table_state.model_name} ends')
     else:
-        update_table({'table': table_state.model_name})
+        # update_table({'table': table_state.model_name})
+        pass
+
 
 def daily_check():
     """
     Perform update of relavant data on daily basis.
     :return:
     """
+    logger.info('daily check starts.')
     season = models.Seasons.get_current()
-    for table in ['Players', 'Teamstats', 'SkaterSeasonStats']:
-        parse_table(data={'table': table, 'seasons': [season]})
-
+    data_parser.TeamstatsParser().update_data(season=season)

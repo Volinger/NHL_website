@@ -41,9 +41,10 @@ class Seasons(models.Model):
     season = models.IntegerField(unique=True)
     games = models.IntegerField()
 
-    def get_current(self):
-        current_season = self.objects.all()[-1:]
-        return current_season['season']
+    @staticmethod
+    def get_current():
+        current_season = Seasons.objects.all().order_by('-season')[0]
+        return current_season.season
 
 class Teams(models.Model):
 

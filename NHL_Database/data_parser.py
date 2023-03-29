@@ -45,7 +45,6 @@ class Parser:
     def __init__(self):
         self.data = None
         self.Scraper: Scraping.BaseScraper = None
-        self.records = []
         self.Table = None
 
     def new_data(self):
@@ -62,21 +61,8 @@ class Parser:
         """
         pass
 
-    def reset_records(self):
-        self.records = []
-
     def add_record(self, record):
-        # self.records = self.records + [record]
         record.save()
-
-    def save_records(self, update_time):
-        """
-        Save scraped records and mark in state table that it was done.
-        :param update_time:
-        :return:
-        """
-        self.Table.objects.bulk_create(self.records, update_conflicts=True)
-        self.update_table_state(update_time)
 
     def update_table_state(self, update_time):
         models.TableState.update_table_state(self.Table, update_time)
@@ -118,13 +104,13 @@ class SeasonsParser(Parser):
             self.add_record(record)
         logger.info('Successfully parsed seasons.')
 
+    @atomic
     def new_data(self):
-        with atomic():
-            start_time = datetime.datetime.now()
-            self.Table.objects.all().delete()
-            self.process_data()
-            # self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+        start_time = datetime.datetime.now()
+        self.Table.objects.all().delete()
+        self.process_data()
+        # self.Table.bulk_create(self.records)
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         """
@@ -141,14 +127,14 @@ class TeamsParser(Parser):
         self.Scraper = Scraping.Teams()
         self.Table = models.Teams
 
+    @atomic
     def new_data(self):
-        with atomic():
-            start_time = datetime.datetime.now()
-            self.Table.objects.all().delete()
-            years = get_all_seasons()
-            self.process_data(years=years)
-            # self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+        start_time = datetime.datetime.now()
+        self.Table.objects.all().delete()
+        years = get_all_seasons()
+        self.process_data(years=years)
+        # self.Table.bulk_create(self.records)
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         self.process_data(years=params['season'])
@@ -173,17 +159,24 @@ class TeamstatsParser(Parser):
         self.Scraper = Scraping.TeamStats()
         self.Table = models.Teamstats
 
+    @atomic
     def new_data(self):
-        with atomic():
-            start_time = datetime.datetime.now()
-            self.Table.objects.all().delete()
-            years = get_all_seasons()
-            self.process_data(years=years)
-            # self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+        start_time = datetime.datetime.now()
+        self.Table.objects.all().delete()
+        years = get_all_seasons()
+        self.process_data(years=years)
+        # self.Table.bulk_create(self.records)
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
+    @atomic
     def update_data(self, **params):
-        self.process_data(years=params['season'])
+        logger.info(f'Started Teamstats update for season: {params["season"]}.')
+        start_time = datetime.datetime.now()
+        self.Table.objects.filter(season=params['season']).all().delete()
+        logger.info(f'Removed old records for season: {params["season"]}.')
+        self.process_data(years=[params['season']])
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+
 
     def process_data(self, years=None):
         for year in years:
@@ -208,15 +201,15 @@ class PlayersParser(Parser):
         self.Scraper = Scraping.Players()
         self.Table = models.Players
 
+    @atomic
     def new_data(self):
-        with atomic():
-            start_time = datetime.datetime.now()
-            self.Table.objects.all().delete()
-            years = get_all_seasons()
-            teams = get_all_teams()
-            self.process_data(years=years, teams=teams)
-            # self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+        start_time = datetime.datetime.now()
+        self.Table.objects.all().delete()
+        years = get_all_seasons()
+        teams = get_all_teams()
+        self.process_data(years=years, teams=teams)
+        # self.Table.bulk_create(self.records)
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         seasons = params.get('seasons', None)
@@ -241,9 +234,12 @@ class PlayersParser(Parser):
                     pass
             logger.info(f'Processed player stats for season: {year}.')
         all_players = set(all_players)
-        for player in all_players:
+        logger.info(f'Players: {all_players}.')
+        for index, player in enumerate(all_players):
+            logger.info(f'processing player {index} / {len(all_players)}')
             data = self.Scraper.get_data(player_id=player)
             self.parse_data_to_table(data)
+        logger.info(f'Processed all players')
 
     def parse_data_to_table(self, data):
         record = self.Table()
@@ -262,15 +258,16 @@ class SkaterSeasonStatsParser(Parser):
         self.Scraper = Scraping.PlayerYearByYearStats()
         self.Table = models.SkaterSeasonStats
 
+    @atomic
     def new_data(self):
-        with atomic():
-            start_time = datetime.datetime.now()
-            self.Table.objects.all().delete()
-            players = models.Players.objects.filter(primaryPosition__in=['R', 'L', 'C', 'D']).all()
-            self.process_data(year=None, players=players, single_season=False)
-            # self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
+        start_time = datetime.datetime.now()
+        self.Table.objects.all().delete()
+        players = models.Players.objects.filter(primaryPosition__in=['R', 'L', 'C', 'D']).all()
+        self.process_data(year=None, players=players, single_season=False)
+        # self.Table.bulk_create(self.records)
+        models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
+    @atomic
     def update_data(self, **params):
         # TBD process only players which are active.
         season = params.get('season', None)
@@ -278,10 +275,11 @@ class SkaterSeasonStatsParser(Parser):
         self.process_data(year=season, players=players, single_season=True)
 
     def process_data(self, year=None, players=None, single_season=None):
-        for player in players:
+        for index, player in enumerate(players):
             all_season_stats = self.Scraper.get_data(player_id=player.id)
             for season_stats in all_season_stats['stats'][0]['splits']:
                 self.process_single_player(player, season_stats, single_season, year)
+            logger.info(f'Processed season stats {index} / {len(players)}')
 
     def process_single_player(self, player, season_stats, single_season, year):
         if not single_season or season_stats['season'] == year:
@@ -293,11 +291,11 @@ class SkaterSeasonStatsParser(Parser):
                 record.evenTimeOnIce = self.convert_time_to_float(record.evenTimeOnIce)
                 record.timeOnIce = self.convert_time_to_float(record.timeOnIce)
                 record.shortHandedTimeOnIce = self.convert_time_to_float(record.shortHandedTimeOnIce)
-                record.player = player.id
-                record.season = season_stats['season']
+                record.player_id = player.id
+                record.season_id = season_stats['season']
                 team = models.Teams.objects.filter(team=season_stats['team']['name']).values(
                     'id')
-                record.team = team[0]['id']
+                record.team_id = team[0]['id']
                 self.add_record(record)
     #
 # class GoalieSeasonStats(Parser):

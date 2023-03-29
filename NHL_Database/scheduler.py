@@ -10,7 +10,7 @@ restart.
 
 from apscheduler.schedulers.background import BackgroundScheduler
 import socket
-from .tasks import init_tables
+from .tasks import init_tables, daily_check
 
 
 def start():
@@ -22,13 +22,12 @@ def start():
     else:
         print('starting')
         scheduler = BackgroundScheduler()
+        print(scheduler.timezone)
         scheduler.add_job(init_tables)
+        scheduler.add_job(daily_check, trigger='cron', hour=9, minute=0, second=0)
         scheduler.start()
 
 
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(daily_check, trigger='cron', hour=8)
-    # scheduler.start()
 
 
 

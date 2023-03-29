@@ -59,16 +59,16 @@ class SkaterSeasonStatsSerializer(TestCase):
 
         self.instance = models.SkaterSeasonStats.objects.create(**self.attr)
         self.serializer = serializers.SkaterSeasonStatsSerializer(self.instance)
+        self.expected = self.attr.copy()
+        self.expected['player'] = self.attr['player'].firstName
+        self.expected['player_surname'] = self.attr['player'].lastName
+        self.expected['season'] = self.attr['season'].season
+        self.expected['team'] = self.attr['team'].team
 
     def test_serialized_fields(self):
         data = self.serializer.data
-        self.assertEqual(set(data.keys()), set(self.attr.keys()))
+        self.assertEqual(set(data.keys()), set(self.expected.keys()))
 
     def test_fields_value(self):
         result = dict(self.serializer.data)
-        result['player'] = dict(result['player'])
-        expected = self.attr
-        expected['season'] = expected['season'].season
-        expected['team'] = expected['team'].team
-        expected['player'] = dict(serializers.PlayersSerializer(self.attr['player']).data)
-        self.assertEqual(result, expected)
+        self.assertEqual(result, self.expected)

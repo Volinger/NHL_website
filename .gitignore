@@ -2,3 +2,4 @@
 /staticfiles/
 /results.sqlite
 /.coverage
+/general.log

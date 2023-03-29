@@ -12,9 +12,9 @@ class PlayersSerializer(serializers.ModelSerializer):
 
 class SkaterSeasonStatsSerializer(serializers.ModelSerializer):
     season = serializers.SlugRelatedField(many=False, slug_field='season', read_only=True, label='Season')
-    player = PlayersSerializer(label='Player')
-    # player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
-    # player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
+    # player = PlayersSerializer(label='Player')
+    player = serializers.SlugRelatedField(queryset=models.Players.objects.all(), slug_field='firstName', label='Name')
+    player_surname = serializers.StringRelatedField(source='player.lastName', label='Surname')
     team = serializers.SlugRelatedField(many=False, slug_field='team', read_only=True, label="Team")
     games = serializers.IntegerField(label='GP')
     assists = serializers.IntegerField(label='A')
