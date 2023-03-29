@@ -66,7 +66,8 @@ class Parser:
         self.records = []
 
     def add_record(self, record):
-        self.records = self.records + [record]
+        # self.records = self.records + [record]
+        record.save()
 
     def save_records(self, update_time):
         """
@@ -122,8 +123,8 @@ class SeasonsParser(Parser):
             start_time = datetime.datetime.now()
             self.Table.objects.all().delete()
             self.process_data()
-            self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table, start_time)
+            # self.Table.bulk_create(self.records)
+            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         """
@@ -146,8 +147,8 @@ class TeamsParser(Parser):
             self.Table.objects.all().delete()
             years = get_all_seasons()
             self.process_data(years=years)
-            self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table, start_time)
+            # self.Table.bulk_create(self.records)
+            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         self.process_data(years=params['season'])
@@ -178,8 +179,8 @@ class TeamstatsParser(Parser):
             self.Table.objects.all().delete()
             years = get_all_seasons()
             self.process_data(years=years)
-            self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table, start_time)
+            # self.Table.bulk_create(self.records)
+            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         self.process_data(years=params['season'])
@@ -214,8 +215,8 @@ class PlayersParser(Parser):
             years = get_all_seasons()
             teams = get_all_teams()
             self.process_data(years=years, teams=teams)
-            self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table, start_time)
+            # self.Table.bulk_create(self.records)
+            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         seasons = params.get('seasons', None)
@@ -267,8 +268,8 @@ class SkaterSeasonStatsParser(Parser):
             self.Table.objects.all().delete()
             players = models.Players.objects.filter(primaryPosition__in=['R', 'L', 'C', 'D']).all()
             self.process_data(year=None, players=players, single_season=False)
-            self.Table.bulk_create(self.records)
-            models.TableState.update_table_state(self.Table, start_time)
+            # self.Table.bulk_create(self.records)
+            models.TableState.update_table_state(self.Table._meta.object_name, start_time)
 
     def update_data(self, **params):
         # TBD process only players which are active.

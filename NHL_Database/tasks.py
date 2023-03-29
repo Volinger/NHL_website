@@ -30,16 +30,16 @@ def parse_table(data):
     :param data:
     :return:
     """
-    start_time = datetime.datetime.now()
+    # start_time = datetime.datetime.now()
     table = data['table']
     model = getattr(models, table)
-    model.objects.all().delete()
+    # model.objects.all().delete()
     class_ = f'{table}Parser'
     parser_class = getattr(data_parser, class_)
     parser = parser_class()
     parser.new_data()
-    parser.records.save()
-    models.TableState.update_table_state(table, start_time)
+    # parser.records.save()
+    # models.TableState.update_table_state(table, start_time)
 
 def update_table(data):
     start_time = datetime.datetime.now()
